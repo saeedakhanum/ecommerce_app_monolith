@@ -1,1 +1,1 @@
-# udemy_ecommerce
+ecommerce_app
