@@ -34,8 +34,12 @@ public class CategoryController {
 		this.categoryService = categoryService;
 	}
 
+	@GetMapping("/public/categories/{categoryId}")
+	public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long categoryId){
+		return ResponseEntity.ok(categoryService.getCatgeory(categoryId));
+	}
 	// get all categories
-	@GetMapping("/api/public/categories")
+	@GetMapping("/public/categories")
 	public ResponseEntity<CategoryResponse> getAllCategories(
 			@RequestParam(name="PageNumber",defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
 			@RequestParam(name="pageSize",defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,

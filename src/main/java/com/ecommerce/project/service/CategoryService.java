@@ -12,4 +12,6 @@ public interface CategoryService {
 
 	
 	CategoryDto updateCategory(CategoryDto categoryDto, Long categoryId);
+
+	CategoryDto getCatgeory(Long categoryId);
 }
