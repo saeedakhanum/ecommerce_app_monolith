@@ -12,4 +12,7 @@ import com.ecommerce.project.model.Product;
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
 	List<Product> findByCategoryOrderByPriceAsc(Category category);
+	
+	//select p from Product p where lower(p.productName) like (:keyword)
+	List<Product> findByProductNameLikeIgnoreCase(String keyword);
 }
