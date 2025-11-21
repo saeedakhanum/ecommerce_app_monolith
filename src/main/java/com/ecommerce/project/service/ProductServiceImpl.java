@@ -12,6 +12,10 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -93,11 +97,15 @@ public class ProductServiceImpl implements ProductService
     // get this in the response
     // get all products
     @Override
-    public ProductResponse getAllProducts()
+    public ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir)
     {
         logger.info("Entering getAllProduct method");
         // check whether the list of the products is empty or not
-        List<Product> products = productRepository.findAll();
+        Sort sortByAndDir = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndDir);
+        Page<Product> productPage = productRepository.findAll(pageable);
+        List<Product> products = productPage.getContent();
         if (products.isEmpty())
         {
             throw new APIException("No products found");
@@ -112,22 +120,35 @@ public class ProductServiceImpl implements ProductService
             }
             return productDto;
         }).collect(Collectors.toList());
+
+        logger.info("total products returned in product response :{}", dtos.size());
+
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(dtos);
-        logger.info("total products returned in product response :{}", dtos.size());
+        productResponse.setPageNumber(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPages(productPage.getTotalPages());
+        productResponse.setLastPage(productPage.isLast());
+        productResponse.setPrevious(productPage.hasPrevious());
         logger.info("Exiting the getAllProducts method");
         return productResponse;
     }
 
     // get products by categoryId
     @Override
-    public ProductResponse getProductByCategory(Long categoryId)
+    public ProductResponse getProductByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy,
+            String sortDir)
     {
         logger.info("start of getProductByCategory method");
         // check whether the list of the products is empty or not
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
-        List<Product> products = productRepository.findByCategoryOrderByPriceAsc(category);
+        Sort sortByAndDir = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndDir);
+        Page<Product> productPage = productRepository.findByCategoryOrderByPriceAsc(category, pageable);
+        List<Product> products = productPage.getContent();
         if (products.isEmpty())
         {
             throw new APIException("No products found");
@@ -143,17 +164,28 @@ public class ProductServiceImpl implements ProductService
             }
             return productDto;
         }).toList());
+        productResponse.setPageNumber(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPages(productPage.getTotalPages());
+        productResponse.setLastPage(productPage.isLast());
+        productResponse.setPrevious(productPage.hasPrevious());
         logger.info("End of getProductByCategoryId method");
         return productResponse;
     }
 
     // search the product
-    public ProductResponse searchProductByKeyword(String keyword)
+    public ProductResponse searchProductByKeyword(String keyword, Integer pageNumber, Integer pageSize, String sortBy,
+            String sortDir)
     {
         logger.info("entering searchProductByKeyword method");
         // check whether the list of the products is empty or not
         logger.info("Fetching the products with the keyword : {}", keyword);
-        List<Product> products = productRepository.findByProductNameLikeIgnoreCase(keyword);
+        Sort sortByAndSortDir = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndSortDir);
+        Page<Product> productPage = productRepository.findByProductNameLikeIgnoreCase(keyword, pageable);
+        List<Product> products = productPage.getContent();
         if (products.isEmpty())
         {
             throw new APIException("No products found");
@@ -175,6 +207,12 @@ public class ProductServiceImpl implements ProductService
         }
         ProductResponse productResponse = new ProductResponse();
         productResponse.setContent(dtos);
+        productResponse.setPageNumber(productPage.getNumber());
+        productResponse.setPageSize(productPage.getSize());
+        productResponse.setTotalElements(productPage.getTotalElements());
+        productResponse.setTotalPages(productPage.getTotalPages());
+        productResponse.setLastPage(productPage.isLast());
+        productResponse.setPrevious(productPage.hasPrevious());
         logger.info("exiting the getProductByKeyword with the count : {}", products.size());
         return productResponse;
     }
