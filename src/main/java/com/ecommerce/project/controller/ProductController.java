@@ -59,8 +59,7 @@ public class ProductController
 
     // get products by catgoryId
     @GetMapping("/public/categories/{categoryId}/products")
-    public ResponseEntity<ProductResponse> getProductByCategory(
-            @PathVariable Long categoryId,
+    public ResponseEntity<ProductResponse> getProductByCategory(@PathVariable Long categoryId,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
@@ -75,15 +74,15 @@ public class ProductController
 
     // search the product
     @GetMapping("/public/products/keyword/{keyword}")
-    public ResponseEntity<ProductResponse> getProductByKeyword(
-            @PathVariable String keyword,
+    public ResponseEntity<ProductResponse> getProductByKeyword(@PathVariable String keyword,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
             @RequestParam(name = "sortDir", defaultValue = AppConstants.SORT_DIR, required = false) String sortDir)
     {
         logger.info("Recieved the request to search the product by the keyword " + keyword);
-        return ResponseEntity.ok(productService.searchProductByKeyword("%" + keyword + "%",pageNumber,pageSize,sortBy,sortDir));
+        return ResponseEntity
+                .ok(productService.searchProductByKeyword("%" + keyword + "%", pageNumber, pageSize, sortBy, sortDir));
 
     }
 
